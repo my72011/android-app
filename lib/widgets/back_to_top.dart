@@ -2,7 +2,7 @@
 // lib/widgets/back_to_top.dart
 // ============================================================
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../utils/constants.dart';
 
 class BackToTopButton extends StatelessWidget {
@@ -15,6 +15,8 @@ class BackToTopButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Positioned MUST be the outermost widget returned here so that 
+    // the parent Stack in HomeScreen correctly positions it at the bottom right.
     return Positioned(
       bottom: 30,
       right: 30,
@@ -34,6 +36,7 @@ class BackToTopButton extends StatelessWidget {
                 BoxShadow(
                   color: AppColors.primary.withOpacity(0.5),
                   blurRadius: 20,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -44,9 +47,16 @@ class BackToTopButton extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    ).animate().fadeIn(
-      duration: 400.ms,
+      )
+          // Apply the animation to the child, NOT the Positioned widget
+          .animate()
+          .fadeIn(duration: 400.ms)
+          .scale(
+            begin: const Offset(0.8, 0.8),
+            end: const Offset(1.0, 1.0),
+            duration: 400.ms,
+            curve: Curves.easeOutBack,
+          ),
     );
   }
 }

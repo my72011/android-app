@@ -13,7 +13,7 @@ class TypingEffect extends StatefulWidget {
   State<TypingEffect> createState() => _TypingEffectState();
 }
 
-class _TypingEffectState extends State<TypingEffect> {
+class _TypingEffectState extends State<TypingEffect> with SingleTickerProviderStateMixin {
   final List<String> _phrases = [
     'Building Digital Experiences',
     'Creating Interactive Worlds',
@@ -23,57 +23,63 @@ class _TypingEffectState extends State<TypingEffect> {
 
   int _phraseIndex = 0;
   int _charIndex = 0;
-  bool _isDeleting = false;
   Timer? _timer;
+  late final AnimationController _cursorController;
 
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(milliseconds: 50), _updateText);
+    _cursorController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(reverse: true);
+    
+    _startTyping();
+  }
+
+  void _startTyping() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(milliseconds: 60), (_) {
+      if (_charIndex < _phrases[_phraseIndex].length) {
+        setState(() => _charIndex++);
+      } else {
+        _pause();
+      }
+    });
+  }
+
+  void _startDeleting() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(milliseconds: 30), (_) {
+      if (_charIndex > 0) {
+        setState(() => _charIndex--);
+      } else {
+        setState(() {
+          _phraseIndex = (_phraseIndex + 1) % _phrases.length;
+        });
+        _startTyping();
+      }
+    });
+  }
+
+  void _pause() {
+    _timer?.cancel();
+    _timer = Timer(const Duration(milliseconds: 1800), _startDeleting);
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _cursorController.dispose();
     super.dispose();
-  }
-
-  void _updateText(Timer timer) {
-    setState(() {
-      final phrase = _phrases[_phraseIndex];
-
-      if (!_isDeleting) {
-        if (_charIndex < phrase.length) {
-          _charIndex++;
-        } else {
-          _isDeleting = true;
-          timer.cancel();
-          _timer = Timer.periodic(const Duration(milliseconds: 1800), (t) {
-            _isDeleting = true;
-            t.cancel();
-            _timer = Timer.periodic(const Duration(milliseconds: 30), _updateText);
-          });
-          return;
-        }
-      } else {
-        if (_charIndex > 0) {
-          _charIndex--;
-        } else {
-          _isDeleting = false;
-          _phraseIndex = (_phraseIndex + 1) % _phrases.length;
-          timer.cancel();
-          _timer = Timer.periodic(const Duration(milliseconds: 50), _updateText);
-          return;
-        }
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
-    final fontSize = isMobile ? 18.0 : _clamp(context, 18, 28, 0.025);
-    final cursorHeight = isMobile ? 24.0 : _clamp(context, 24, 34, 0.035);
+    final size = MediaQuery.sizeOf(context);
+    final isMobile = size.width < 768;
+    final fontSize = isMobile ? 18.0 : (size.width * 0.025).clamp(18.0, 28.0);
+    final cursorHeight = isMobile ? 24.0 : (size.width * 0.035).clamp(24.0, 34.0);
     final text = _phrases[_phraseIndex].substring(0, _charIndex);
 
     return Row(
@@ -88,21 +94,18 @@ class _TypingEffectState extends State<TypingEffect> {
             fontWeight: FontWeight.w300,
           ),
         ),
-        const SizedBox(width: 2),
-        Container(
-          width: 2,
-          height: cursorHeight,
-          color: AppColors.primary,
+        const SizedBox(width: 4),
+        AnimatedBuilder(
+          animation: _cursorController,
+          builder: (context, child) {
+            return Container(
+              width: 2,
+              height: cursorHeight,
+              color: AppColors.primary.withOpacity(_cursorController.value),
+            );
+          },
         ),
       ],
     );
-  }
-
-  double _clamp(BuildContext context, double min, double max, double fraction) {
-    final width = MediaQuery.of(context).size.width;
-    final value = width * fraction;
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
   }
 }

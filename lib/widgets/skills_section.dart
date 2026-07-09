@@ -10,7 +10,7 @@ import '../utils/constants.dart';
 class SkillsSection extends StatelessWidget {
   const SkillsSection({super.key});
 
-  final List<Map<String, dynamic>> _skills = const [
+  static const List<Map<String, dynamic>> _skills = [
     {'icon': FontAwesomeIcons.html5, 'name': 'HTML5'},
     {'icon': FontAwesomeIcons.css3Alt, 'name': 'CSS3'},
     {'icon': FontAwesomeIcons.js, 'name': 'JavaScript'},
@@ -27,8 +27,9 @@ class SkillsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
-    final titleSize = isMobile ? 32.0 : _clamp(context, 32, 64, 0.05);
+    final size = MediaQuery.sizeOf(context);
+    final isMobile = size.width < 768;
+    final titleSize = isMobile ? 32.0 : (size.width * 0.05).clamp(32.0, 64.0);
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -37,50 +38,7 @@ class SkillsSection extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
-                  borderRadius: BorderRadius.circular(100),
-                  color: AppColors.primary.withOpacity(0.05),
-                ),
-                child: Text(
-                  'EXPERTISE',
-                  style: GoogleFonts.orbitron(
-                    fontSize: 12,
-                    letterSpacing: 4,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ).animate().fadeUp(duration: 600.ms),
-              const SizedBox(height: 15),
-              ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Colors.white, AppColors.primary],
-                ).createShader(bounds),
-                child: Text(
-                  'Skills & Tools',
-                  style: GoogleFonts.orbitron(
-                    fontSize: titleSize,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -1,
-                  ),
-                ),
-              ).animate().fadeUp(duration: 600.ms, delay: 100.ms),
-              const SizedBox(height: 15),
-              Text(
-                'The technologies I wield to build the future.',
-                style: TextStyle(
-                  color: AppColors.muted,
-                  fontSize: 16,
-                  height: 1.7,
-                ),
-                textAlign: TextAlign.center,
-              ).animate().fadeUp(duration: 600.ms, delay: 200.ms),
-            ],
-          ),
+          _buildHeader(context, titleSize),
           const SizedBox(height: 80),
           Wrap(
             spacing: 20,
@@ -90,14 +48,66 @@ class SkillsSection extends StatelessWidget {
               final index = entry.key;
               final skill = entry.value;
               return _buildSkillCard(
-                icon: skill['icon'],
-                name: skill['name'],
+                icon: skill['icon'] as IconData,
+                name: skill['name'] as String,
                 delay: (index * 50).ms,
               );
             }).toList(),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, double titleSize) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+            borderRadius: BorderRadius.circular(100),
+            color: AppColors.primary.withOpacity(0.05),
+          ),
+          child: Text(
+            'EXPERTISE',
+            style: GoogleFonts.orbitron(
+              fontSize: 12,
+              letterSpacing: 4,
+              color: AppColors.primary,
+            ),
+          ),
+        ).animate().fadeIn(duration: 600.ms).moveY(begin: 20, end: 0, duration: 600.ms, curve: Curves.easeOut),
+        
+        const SizedBox(height: 15),
+        
+        ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [Colors.white, AppColors.primary],
+          ).createShader(bounds),
+          child: Text(
+            'Skills & Tools',
+            style: GoogleFonts.orbitron(
+              fontSize: titleSize,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1,
+              color: Colors.white, // Required for ShaderMask to show the gradient
+            ),
+          ),
+        ).animate().fadeIn(duration: 600.ms, delay: 100.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 100.ms, curve: Curves.easeOut),
+        
+        const SizedBox(height: 15),
+        
+        Text(
+          'The technologies I wield to build the future.',
+          style: TextStyle(
+            color: AppColors.muted,
+            fontSize: 16,
+            height: 1.7,
+          ),
+          textAlign: TextAlign.center,
+        ).animate().fadeIn(duration: 600.ms, delay: 200.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 200.ms, curve: Curves.easeOut),
+      ],
     );
   }
 
@@ -117,6 +127,7 @@ class SkillsSection extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
@@ -125,7 +136,7 @@ class SkillsSection extends StatelessWidget {
               child: FaIcon(
                 icon,
                 size: 32,
-                color: Colors.white,
+                color: Colors.white, // Required for ShaderMask to show the gradient
               ),
             ),
             const SizedBox(height: 12),
@@ -135,6 +146,7 @@ class SkillsSection extends StatelessWidget {
                 fontSize: 13,
                 letterSpacing: 2,
                 fontWeight: FontWeight.w600,
+                color: AppColors.text,
               ),
             ),
           ],
@@ -146,13 +158,5 @@ class SkillsSection extends StatelessWidget {
       begin: const Offset(0.8, 0.8),
       end: const Offset(1.0, 1.0),
     );
-  }
-
-  double _clamp(BuildContext context, double min, double max, double fraction) {
-    final width = MediaQuery.of(context).size.width;
-    final value = width * fraction;
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
   }
 }

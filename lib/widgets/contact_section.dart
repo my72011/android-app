@@ -11,7 +11,7 @@ import '../utils/constants.dart';
 class ContactSection extends StatelessWidget {
   const ContactSection({super.key});
 
-  final List<Map<String, dynamic>> _contacts = const [
+  static const List<Map<String, dynamic>> _contacts = [
     {
       'icon': FontAwesomeIcons.github,
       'label': 'GitHub',
@@ -41,8 +41,9 @@ class ContactSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
-    final titleSize = isMobile ? 32.0 : _clamp(context, 32, 56, 0.05);
+    final size = MediaQuery.sizeOf(context);
+    final isMobile = size.width < 768;
+    final titleSize = isMobile ? 32.0 : (size.width * 0.05).clamp(32.0, 56.0);
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -75,8 +76,10 @@ class ContactSection extends StatelessWidget {
                     color: AppColors.primary,
                   ),
                 ),
-              ).animate().fadeUp(duration: 600.ms),
+              ).animate().fadeIn(duration: 600.ms).moveY(begin: 20, end: 0, duration: 600.ms, curve: Curves.easeOut),
+              
               const SizedBox(height: 15),
+              
               ShaderMask(
                 shaderCallback: (bounds) => const LinearGradient(
                   colors: [Colors.white, AppColors.primary, AppColors.secondary],
@@ -88,10 +91,13 @@ class ContactSection extends StatelessWidget {
                     fontSize: titleSize,
                     fontWeight: FontWeight.w800,
                     height: 1.1,
+                    color: Colors.white, // Required for ShaderMask to show the gradient
                   ),
                 ),
-              ).animate().fadeUp(duration: 600.ms, delay: 100.ms),
+              ).animate().fadeIn(duration: 600.ms, delay: 100.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 100.ms, curve: Curves.easeOut),
+              
               const SizedBox(height: 15),
+              
               Text(
                 'Mostafa Yasser — Developer • Designer • Creator',
                 style: TextStyle(
@@ -99,20 +105,22 @@ class ContactSection extends StatelessWidget {
                   fontSize: 18,
                 ),
                 textAlign: TextAlign.center,
-              ).animate().fadeUp(duration: 600.ms, delay: 200.ms),
+              ).animate().fadeIn(duration: 600.ms, delay: 200.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 200.ms, curve: Curves.easeOut),
+              
               const SizedBox(height: 40),
+              
               Wrap(
                 spacing: 20,
                 runSpacing: 20,
                 alignment: WrapAlignment.center,
                 children: _contacts.map((contact) {
                   return _buildContactButton(
-                    icon: contact['icon'],
-                    label: contact['label'],
-                    url: contact['url'],
+                    icon: contact['icon'] as IconData,
+                    label: contact['label'] as String,
+                    url: contact['url'] as String,
                   );
                 }).toList(),
-              ).animate().fadeUp(duration: 600.ms, delay: 300.ms),
+              ).animate().fadeIn(duration: 600.ms, delay: 300.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 300.ms, curve: Curves.easeOut),
             ],
           ),
         ),
@@ -160,18 +168,10 @@ class ContactSection extends StatelessWidget {
     );
   }
 
-  void _launchUrl(String url) async {
+  Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     }
-  }
-
-  double _clamp(BuildContext context, double min, double max, double fraction) {
-    final width = MediaQuery.of(context).size.width;
-    final value = width * fraction;
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
   }
 }

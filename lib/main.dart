@@ -21,23 +21,18 @@ class MyApp extends StatelessWidget {
       title: 'Mostafa Yasser — Developer • Designer • Creator',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        brightness: Brightness.dark,
-        primaryColor: const Color(0xFF00E5FF),
-        scaffoldBackgroundColor: const Color(0xFF050505),
-        fontFamily: 'Poppins',
-        useMaterial3: false,
+        useMaterial3: true,
         colorScheme: const ColorScheme.dark(
           primary: Color(0xFF00E5FF),
           secondary: Color(0xFF8B5CF6),
           surface: Color(0xFF050505),
-          background: Color(0xFF050505),
         ),
-        textTheme: GoogleFonts.poppinsTextTheme(
-          ThemeData.dark().textTheme,
-        ),
+        scaffoldBackgroundColor: const Color(0xFF050505),
+        textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.transparent,
           elevation: 0,
+          centerTitle: true,
         ),
       ),
       home: const HomeScreen(),

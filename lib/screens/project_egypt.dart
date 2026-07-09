@@ -12,9 +12,10 @@ class EgyptExplorerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
-    final titleSize = isMobile ? 50.0 : _clamp(context, 50, 140, 0.1);
-    final subSize = isMobile ? 13.0 : _clamp(context, 13, 18, 0.018);
+    final size = MediaQuery.sizeOf(context);
+    final isMobile = size.width < 768;
+    final titleSize = isMobile ? 50.0 : (size.width * 0.1).clamp(50.0, 140.0);
+    final subSize = isMobile ? 13.0 : (size.width * 0.018).clamp(13.0, 18.0);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0604),
@@ -38,6 +39,7 @@ class EgyptExplorerScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
+                  // Header
                   Row(
                     children: [
                       Text(
@@ -80,7 +82,10 @@ class EgyptExplorerScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+                  
                   const SizedBox(height: 60),
+                  
+                  // Hero Section
                   Column(
                     children: [
                       Container(
@@ -98,8 +103,10 @@ class EgyptExplorerScreen extends StatelessWidget {
                             color: const Color(0xFFFBBF24),
                           ),
                         ),
-                      ).animate().fadeDown(duration: 600.ms),
+                      ).animate().fadeIn(duration: 600.ms).moveY(begin: -20, end: 0, duration: 600.ms, curve: Curves.easeOut),
+                      
                       const SizedBox(height: 20),
+                      
                       ShaderMask(
                         shaderCallback: (bounds) => const LinearGradient(
                           colors: [Color(0xFFFBBF24), Color(0xFFFEF3C7), Color(0xFFD97706)],
@@ -110,6 +117,7 @@ class EgyptExplorerScreen extends StatelessWidget {
                             fontWeight: FontWeight.w900,
                             fontSize: titleSize,
                             height: 1.0,
+                            color: Colors.white, // Required for ShaderMask to show the gradient
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -118,7 +126,9 @@ class EgyptExplorerScreen extends StatelessWidget {
                         begin: const Offset(0.8, 0.8),
                         end: const Offset(1.0, 1.0),
                       ),
+                      
                       const SizedBox(height: 10),
+                      
                       Text(
                         'WHERE HISTORY MEETS TOMORROW',
                         style: GoogleFonts.orbitron(
@@ -126,8 +136,10 @@ class EgyptExplorerScreen extends StatelessWidget {
                           letterSpacing: 8,
                           color: Colors.white.withOpacity(0.8),
                         ),
-                      ).animate().fadeUp(duration: 600.ms, delay: 100.ms),
+                      ).animate().fadeIn(duration: 600.ms, delay: 100.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 100.ms, curve: Curves.easeOut),
+                      
                       const SizedBox(height: 40),
+                      
                       MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
@@ -143,6 +155,7 @@ class EgyptExplorerScreen extends StatelessWidget {
                                 BoxShadow(
                                   color: const Color(0xFFFBBF24).withOpacity(0.4),
                                   blurRadius: 40,
+                                  offset: const Offset(0, 10),
                                 ),
                               ],
                             ),
@@ -164,10 +177,13 @@ class EgyptExplorerScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ).animate().fadeUp(duration: 600.ms, delay: 200.ms),
+                      ).animate().fadeIn(duration: 600.ms, delay: 200.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 200.ms, curve: Curves.easeOut),
                     ],
                   ),
+                  
                   const SizedBox(height: 80),
+                  
+                  // Overview Section
                   _buildSectionHeader(
                     context,
                     tag: 'OVERVIEW',
@@ -223,7 +239,10 @@ class EgyptExplorerScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                  
                   const SizedBox(height: 80),
+                  
+                  // Features Section
                   _buildSectionHeader(
                     context,
                     tag: 'FEATURES',
@@ -268,7 +287,10 @@ class EgyptExplorerScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+                  
                   const SizedBox(height: 80),
+                  
+                  // Timeline Section
                   _buildSectionHeader(
                     context,
                     tag: 'TIMELINE',
@@ -307,7 +329,10 @@ class EgyptExplorerScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+                  
                   const SizedBox(height: 80),
+                  
+                  // CTA Section
                   Container(
                     padding: const EdgeInsets.all(70),
                     decoration: BoxDecoration(
@@ -319,6 +344,7 @@ class EgyptExplorerScreen extends StatelessWidget {
                         BoxShadow(
                           color: const Color(0xFFFBBF24).withOpacity(0.4),
                           blurRadius: 80,
+                          offset: const Offset(0, 20),
                         ),
                       ],
                     ),
@@ -328,7 +354,7 @@ class EgyptExplorerScreen extends StatelessWidget {
                           'Begin Your Journey',
                           style: GoogleFonts.cinzel(
                             fontWeight: FontWeight.w900,
-                            fontSize: isMobile ? 32 : _clamp(context, 32, 56, 0.05),
+                            fontSize: isMobile ? 32.0 : (size.width * 0.05).clamp(32.0, 56.0),
                             color: const Color(0xFF0A0604),
                             letterSpacing: 3,
                           ),
@@ -376,7 +402,10 @@ class EgyptExplorerScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                  
                   const SizedBox(height: 60),
+                  
+                  // Footer
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 40),
                     decoration: BoxDecoration(
@@ -403,7 +432,9 @@ class EgyptExplorerScreen extends StatelessWidget {
   }
 
   Widget _buildSectionHeader(BuildContext context, {required String tag, required String title, required String desc}) {
-    final titleSize = _clamp(context, 36, 72, 0.06);
+    final size = MediaQuery.sizeOf(context);
+    final titleSize = (size.width * 0.06).clamp(36.0, 72.0);
+    
     return Column(
       children: [
         Container(
@@ -432,6 +463,7 @@ class EgyptExplorerScreen extends StatelessWidget {
             style: GoogleFonts.cinzel(
               fontWeight: FontWeight.w900,
               fontSize: titleSize,
+              color: Colors.white, // Required for ShaderMask to show the gradient
             ),
             textAlign: TextAlign.center,
           ),
@@ -469,7 +501,7 @@ class EgyptExplorerScreen extends StatelessWidget {
             shaderCallback: (bounds) => const LinearGradient(
               colors: [Color(0xFFFBBF24), Color(0xFFFEF3C7)],
             ).createShader(bounds),
-            child: FaIcon(icon, size: 48),
+            child: FaIcon(icon, size: 48, color: Colors.white), // Required for ShaderMask to show the gradient
           ),
           const SizedBox(height: 15),
           Text(
@@ -548,15 +580,7 @@ class EgyptExplorerScreen extends StatelessWidget {
     );
   }
 
-  double _clamp(BuildContext context, double min, double max, double fraction) {
-    final width = MediaQuery.of(context).size.width;
-    final value = width * fraction;
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
-  }
-
-  void _launchUrl(String url) async {
+  Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);

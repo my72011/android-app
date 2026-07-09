@@ -33,6 +33,7 @@ class LoaderWidget extends StatelessWidget {
                 fontSize: _clamp(context, 28, 56, 0.05),
                 fontWeight: FontWeight.w900,
                 letterSpacing: 6,
+                color: Colors.white, // Essential: ShaderMask needs a white child to show the gradient properly
               ),
             ),
           ),
@@ -41,13 +42,14 @@ class LoaderWidget extends StatelessWidget {
 
           // Progress bar
           Container(
-            width: _clamp(context, 320, 320, 0.7),
+            width: _clamp(context, 200, 320, 0.7), // Made responsive (was 320, 320 which is fixed)
             height: 3,
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.08),
               borderRadius: BorderRadius.circular(10),
             ),
             child: FractionallySizedBox(
+              alignment: Alignment.centerLeft, // Crucial: makes the progress bar grow from left to right
               widthFactor: progress / 100,
               child: Container(
                 decoration: BoxDecoration(
@@ -83,10 +85,7 @@ class LoaderWidget extends StatelessWidget {
   }
 
   double _clamp(BuildContext context, double min, double max, double fraction) {
-    final width = MediaQuery.of(context).size.width;
-    final value = width * fraction;
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
+    final width = MediaQuery.sizeOf(context).width; // More efficient in Flutter 3.10+
+    return (width * fraction).clamp(min, max); // Cleaner syntax
   }
 }

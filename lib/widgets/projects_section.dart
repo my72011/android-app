@@ -4,14 +4,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../utils/constants.dart';
 
 class ProjectsSection extends StatelessWidget {
   const ProjectsSection({super.key});
 
-  final List<Map<String, dynamic>> _projects = const [
+  static const List<Map<String, dynamic>> _projects = [
     {
       'id': 'dars',
       'title': 'Dars Ice Cream',
@@ -46,8 +44,9 @@ class ProjectsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
-    final titleSize = isMobile ? 32.0 : _clamp(context, 32, 64, 0.05);
+    final size = MediaQuery.sizeOf(context);
+    final isMobile = size.width < 768;
+    final titleSize = isMobile ? 32.0 : (size.width * 0.05).clamp(32.0, 64.0);
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -56,50 +55,7 @@ class ProjectsSection extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
-                  borderRadius: BorderRadius.circular(100),
-                  color: AppColors.primary.withOpacity(0.05),
-                ),
-                child: Text(
-                  'PORTFOLIO',
-                  style: GoogleFonts.orbitron(
-                    fontSize: 12,
-                    letterSpacing: 4,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ).animate().fadeUp(duration: 600.ms),
-              const SizedBox(height: 15),
-              ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Colors.white, AppColors.primary],
-                ).createShader(bounds),
-                child: Text(
-                  'Featured Projects',
-                  style: GoogleFonts.orbitron(
-                    fontSize: titleSize,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -1,
-                  ),
-                ),
-              ).animate().fadeUp(duration: 600.ms, delay: 100.ms),
-              const SizedBox(height: 15),
-              Text(
-                'Selected works crafted with passion and precision.',
-                style: TextStyle(
-                  color: AppColors.muted,
-                  fontSize: 16,
-                  height: 1.7,
-                ),
-                textAlign: TextAlign.center,
-              ).animate().fadeUp(duration: 600.ms, delay: 200.ms),
-            ],
-          ),
+          _buildHeader(context, titleSize),
           const SizedBox(height: 80),
           Wrap(
             spacing: 30,
@@ -112,6 +68,7 @@ class ProjectsSection extends StatelessWidget {
                 width: isMobile ? double.infinity : 320,
                 height: 520,
                 child: _buildProjectCard(
+                  context: context,
                   project: project,
                   delay: (index * 150).ms,
                 ),
@@ -123,23 +80,76 @@ class ProjectsSection extends StatelessWidget {
     );
   }
 
+  Widget _buildHeader(BuildContext context, double titleSize) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+            borderRadius: BorderRadius.circular(100),
+            color: AppColors.primary.withOpacity(0.05),
+          ),
+          child: Text(
+            'PORTFOLIO',
+            style: GoogleFonts.orbitron(
+              fontSize: 12,
+              letterSpacing: 4,
+              color: AppColors.primary,
+            ),
+          ),
+        ).animate().fadeIn(duration: 600.ms).moveY(begin: 20, end: 0, duration: 600.ms, curve: Curves.easeOut),
+        
+        const SizedBox(height: 15),
+        
+        ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [Colors.white, AppColors.primary],
+          ).createShader(bounds),
+          child: Text(
+            'Featured Projects',
+            style: GoogleFonts.orbitron(
+              fontSize: titleSize,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1,
+              color: Colors.white, // Required for ShaderMask to show the gradient
+            ),
+          ),
+        ).animate().fadeIn(duration: 600.ms, delay: 100.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 100.ms, curve: Curves.easeOut),
+        
+        const SizedBox(height: 15),
+        
+        Text(
+          'Selected works crafted with passion and precision.',
+          style: TextStyle(
+            color: AppColors.muted,
+            fontSize: 16,
+            height: 1.7,
+          ),
+          textAlign: TextAlign.center,
+        ).animate().fadeIn(duration: 600.ms, delay: 200.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 200.ms, curve: Curves.easeOut),
+      ],
+    );
+  }
+
   Widget _buildProjectCard({
+    required BuildContext context,
     required Map<String, dynamic> project,
     required Duration delay,
   }) {
+    // Safely cast the gradient colors list
+    final gradientColors = (project['gradient'] as List<dynamic>).cast<Color>();
+    
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(
-            WidgetsBinding.instance.context!,
-            project['route'],
-          );
+          Navigator.pushNamed(context, project['route'] as String);
         },
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: project['gradient'] as List<Color>,
+              colors: gradientColors,
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -150,17 +160,21 @@ class ProjectsSection extends StatelessWidget {
           ),
           child: Stack(
             children: [
+              // Background Icon
               Positioned(
                 top: 130,
                 right: 30,
                 child: Text(
-                  project['icon'],
+                  project['icon'] as String,
                   style: const TextStyle(
                     fontSize: 160,
                     color: Color(0x40FFFFFF),
                   ),
                 ),
               ),
+              
+              // Dark Overlay for Text Readability 
+              // (Fixed: Changed white colors to dark bg color so it blends with the dark theme)
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
@@ -168,10 +182,10 @@ class ProjectsSection extends StatelessWidget {
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Color(0xF2FFFFFF),
+                      Color(0xF2050505), // Dark overlay at bottom (matches AppColors.bg)
                       Color(0xBF000000),
                       Color(0x4D000000),
-                      Color(0x0D000000),
+                      Color(0x0D000000), // Transparent at top
                     ],
                     stops: [0.0, 0.3, 0.6, 1.0],
                   ),
@@ -189,7 +203,7 @@ class ProjectsSection extends StatelessWidget {
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Text(
-                        project['tag'].toUpperCase(),
+                        (project['tag'] as String).toUpperCase(),
                         style: GoogleFonts.orbitron(
                           fontSize: 10,
                           letterSpacing: 2,
@@ -199,7 +213,7 @@ class ProjectsSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 15),
                     Text(
-                      project['title'],
+                      project['title'] as String,
                       style: GoogleFonts.orbitron(
                         fontSize: 30,
                         fontWeight: FontWeight.w800,
@@ -214,7 +228,7 @@ class ProjectsSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      project['desc'],
+                      project['desc'] as String,
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.85),
                         fontSize: 14,
@@ -246,18 +260,7 @@ class ProjectsSection extends StatelessWidget {
             ],
           ),
         ),
-      ).animate().fadeUp(
-        duration: 800.ms,
-        delay: delay,
-      ),
+      ).animate().fadeIn(duration: 800.ms, delay: delay).moveY(begin: 20, end: 0, duration: 800.ms, delay: delay, curve: Curves.easeOut),
     );
-  }
-
-  double _clamp(BuildContext context, double min, double max, double fraction) {
-    final width = MediaQuery.of(context).size.width;
-    final value = width * fraction;
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
   }
 }

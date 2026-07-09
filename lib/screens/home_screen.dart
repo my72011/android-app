@@ -2,11 +2,6 @@
 // lib/screens/home_screen.dart
 // ============================================================
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:visibility_detector/visibility_detector.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../widgets/loader.dart';
 import '../widgets/cursor.dart';
 import '../widgets/navigation.dart';
@@ -27,7 +22,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _showLoader = true;
   double _loaderProgress = 0.0;
@@ -40,32 +35,31 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _scrollController.addListener(_onScroll);
   }
 
-  void _simulateLoader() {
+  Future<void> _simulateLoader() async {
     double progress = 0.0;
-    Future.doWhile(() async {
+    while (progress < 100) {
       await Future.delayed(const Duration(milliseconds: 120));
       progress += (5 + (10 * (1 - progress / 100)));
-      if (progress >= 100) {
-        progress = 100;
+      if (progress > 100) progress = 100;
+      
+      if (mounted) {
         setState(() {
           _loaderProgress = progress;
         });
-        await Future.delayed(const Duration(milliseconds: 400));
-        setState(() {
-          _showLoader = false;
-        });
-        return false;
       }
+    }
+    
+    await Future.delayed(const Duration(milliseconds: 400));
+    if (mounted) {
       setState(() {
-        _loaderProgress = progress;
+        _showLoader = false;
       });
-      return true;
-    });
+    }
   }
 
   void _onScroll() {
     final show = _scrollController.offset > 500;
-    if (show != _showBackToTop) {
+    if (show != _showBackToTop && mounted) {
       setState(() {
         _showBackToTop = show;
       });
@@ -96,15 +90,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           SingleChildScrollView(
             controller: _scrollController,
             physics: const BouncingScrollPhysics(),
-            child: Column(
+            child: const Column(
               children: [
-                const HeroSection(),
-                const AboutSection(),
-                const SkillsSection(),
-                const ProjectsSection(),
-                const TimelineSection(),
-                const ContactSection(),
-                const FooterSection(),
+                HeroSection(),
+                AboutSection(),
+                SkillsSection(),
+                ProjectsSection(),
+                TimelineSection(),
+                ContactSection(),
+                FooterSection(),
               ],
             ),
           ),

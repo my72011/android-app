@@ -10,7 +10,7 @@ import '../utils/constants.dart';
 class FooterSection extends StatelessWidget {
   const FooterSection({super.key});
 
-  final List<Map<String, String>> _socials = const [
+  static const List<Map<String, String>> _socials = [
     {'icon': 'github', 'url': 'https://github.com/my72011'},
     {'icon': 'linkedin', 'url': 'https://www.linkedin.com/in/mostafa-yasser-2636b1392'},
     {'icon': 'x-twitter', 'url': 'https://x.com/Yas39500Mostafa'},
@@ -39,6 +39,7 @@ class FooterSection extends StatelessWidget {
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 3,
+                color: Colors.white, // Required for ShaderMask to show the gradient
               ),
             ),
           ),
@@ -81,7 +82,7 @@ class FooterSection extends StatelessWidget {
     required String icon,
     required String url,
   }) {
-    IconData? iconData;
+    IconData iconData;
     switch (icon) {
       case 'github':
         iconData = FontAwesomeIcons.github;
@@ -121,7 +122,7 @@ class FooterSection extends StatelessWidget {
     );
   }
 
-  void _launchUrl(String url) async {
+  Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);

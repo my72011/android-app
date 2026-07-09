@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../utils/constants.dart';
 import 'particle_background.dart';
 import 'typing_effect.dart';
@@ -14,15 +13,18 @@ class HeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
-    final titleSize = isMobile ? 40.0 : _clamp(context, 40, 140, 0.09);
-    final subSize = isMobile ? 14.0 : _clamp(context, 14, 22, 0.018);
+    final size = MediaQuery.sizeOf(context);
+    final isMobile = size.width < 768;
+    final titleSize = isMobile ? 40.0 : (size.width * 0.09).clamp(40.0, 140.0);
+    final subSize = isMobile ? 14.0 : (size.width * 0.018).clamp(14.0, 22.0);
 
     return SizedBox(
-      height: MediaQuery.of(context).size.height,
+      height: size.height,
       child: Stack(
         children: [
           const ParticleBackground(),
+          
+          // Dark Vignette Overlay (Fixed: Changed white colors to AppColors.bg to preserve the dark theme)
           Container(
             decoration: BoxDecoration(
               gradient: RadialGradient(
@@ -30,19 +32,21 @@ class HeroSection extends StatelessWidget {
                 radius: 1.0,
                 colors: [
                   Colors.transparent,
-                  const Color(0x99FFFFFF),
-                  const Color(0xF2FFFFFF),
+                  AppColors.bg.withOpacity(0.6),
+                  AppColors.bg,
                 ],
                 stops: const [0.0, 0.7, 1.0],
               ),
             ),
           ),
+          
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Status Badge
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     decoration: BoxDecoration(
@@ -78,8 +82,11 @@ class HeroSection extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ).animate().fadeDown(duration: 600.ms),
+                  ).animate().fadeIn(duration: 600.ms).moveY(begin: -20, end: 0, duration: 600.ms, curve: Curves.easeOut),
+                  
                   const SizedBox(height: 30),
+                  
+                  // Main Title
                   ShaderMask(
                     shaderCallback: (bounds) => const LinearGradient(
                       colors: [
@@ -98,10 +105,14 @@ class HeroSection extends StatelessWidget {
                         fontWeight: FontWeight.w900,
                         height: 0.95,
                         letterSpacing: -2,
+                        color: Colors.white, // Required for ShaderMask to show the gradient properly
                       ),
                     ),
-                  ).animate().fadeUp(duration: 800.ms),
+                  ).animate().fadeIn(duration: 800.ms).moveY(begin: 20, end: 0, duration: 800.ms, curve: Curves.easeOut),
+                  
                   const SizedBox(height: 20),
+                  
+                  // Subtitle
                   Text(
                     'DEVELOPER • DESIGNER • CREATOR',
                     style: GoogleFonts.orbitron(
@@ -109,28 +120,30 @@ class HeroSection extends StatelessWidget {
                       letterSpacing: 8,
                       color: AppColors.muted,
                     ),
-                  ).animate().fadeUp(duration: 800.ms, delay: 100.ms),
+                  ).animate().fadeIn(duration: 800.ms, delay: 100.ms).moveY(begin: 20, end: 0, duration: 800.ms, delay: 100.ms, curve: Curves.easeOut),
+                  
                   const SizedBox(height: 30),
-                  const TypingEffect().animate().fadeUp(duration: 800.ms, delay: 200.ms),
+                  
+                  // Typing Effect
+                  const TypingEffect().animate().fadeIn(duration: 800.ms, delay: 200.ms).moveY(begin: 20, end: 0, duration: 800.ms, delay: 200.ms, curve: Curves.easeOut),
+                  
                   const SizedBox(height: 40),
+                  
+                  // Action Buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildPrimaryButton(
-                        label: 'Explore Projects',
-                        onTap: () {},
-                      ),
+                      _buildPrimaryButton(label: 'Explore Projects', onTap: () {}),
                       const SizedBox(width: 20),
-                      _buildGhostButton(
-                        label: 'Contact Me',
-                        onTap: () {},
-                      ),
+                      _buildGhostButton(label: 'Contact Me', onTap: () {}),
                     ],
-                  ).animate().fadeUp(duration: 600.ms, delay: 300.ms),
+                  ).animate().fadeIn(duration: 600.ms, delay: 300.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 300.ms, curve: Curves.easeOut),
                 ],
               ),
             ),
           ),
+          
+          // Scroll Indicator
           Positioned(
             bottom: 30,
             left: 0,
@@ -149,9 +162,11 @@ class HeroSection extends StatelessWidget {
                 Container(
                   width: 1,
                   height: 50,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
                       colors: [AppColors.primary, Colors.transparent],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                     ),
                   ),
                 ).animate().shimmer(
@@ -164,14 +179,6 @@ class HeroSection extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  double _clamp(BuildContext context, double min, double max, double fraction) {
-    final width = MediaQuery.of(context).size.width;
-    final value = width * fraction;
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
   }
 
   Widget _buildPrimaryButton({
@@ -193,6 +200,7 @@ class HeroSection extends StatelessWidget {
               BoxShadow(
                 color: AppColors.primary.withOpacity(0.4),
                 blurRadius: 30,
+                offset: const Offset(0, 10),
               ),
             ],
           ),

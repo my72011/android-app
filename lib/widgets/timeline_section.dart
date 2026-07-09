@@ -9,7 +9,7 @@ import '../utils/constants.dart';
 class TimelineSection extends StatelessWidget {
   const TimelineSection({super.key});
 
-  final List<Map<String, String>> _timelineItems = const [
+  static const List<Map<String, String>> _timelineItems = [
     {
       'year': 'STAGE 01',
       'title': 'Started Learning',
@@ -44,8 +44,9 @@ class TimelineSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 968;
-    final titleSize = isMobile ? 32.0 : _clamp(context, 32, 64, 0.05);
+    final size = MediaQuery.sizeOf(context);
+    final isMobile = size.width < 968;
+    final titleSize = isMobile ? 32.0 : (size.width * 0.05).clamp(32.0, 64.0);
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -54,95 +55,115 @@ class TimelineSection extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
-                  borderRadius: BorderRadius.circular(100),
-                  color: AppColors.primary.withOpacity(0.05),
-                ),
-                child: Text(
-                  'JOURNEY',
-                  style: GoogleFonts.orbitron(
-                    fontSize: 12,
-                    letterSpacing: 4,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ).animate().fadeUp(duration: 600.ms),
-              const SizedBox(height: 15),
-              ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Colors.white, AppColors.primary],
-                ).createShader(bounds),
-                child: Text(
-                  'My Path',
-                  style: GoogleFonts.orbitron(
-                    fontSize: titleSize,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -1,
-                  ),
-                ),
-              ).animate().fadeUp(duration: 600.ms, delay: 100.ms),
-              const SizedBox(height: 15),
-              Text(
-                'Milestones that shaped my craft.',
-                style: TextStyle(
-                  color: AppColors.muted,
-                  fontSize: 16,
-                  height: 1.7,
-                ),
-                textAlign: TextAlign.center,
-              ).animate().fadeUp(duration: 600.ms, delay: 200.ms),
-            ],
-          ),
+          _buildHeader(context, titleSize),
           const SizedBox(height: 80),
-          SizedBox(
-            width: 900,
-            child: Stack(
-              children: [
-                Positioned(
-                  left: isMobile ? 20 : 450,
-                  top: 0,
-                  bottom: 0,
-                  child: Container(
-                    width: 2,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppColors.primary, AppColors.secondary],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.5),
-                          blurRadius: 20,
-                        ),
-                      ],
-                    ),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 900),
+              child: Stack(
+                children: [
+                  // Vertical Line
+                  // Positioned to start and end exactly at the center of the first and last dots
+                  Positioned(
+                    top: 10, 
+                    bottom: 10, 
+                    left: isMobile ? 49 : 0,
+                    right: isMobile ? null : 0,
+                    child: isMobile
+                        ? _buildLine()
+                        : Center(child: _buildLine()),
                   ),
-                ),
-                ..._timelineItems.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final item = entry.value;
-                  if (isMobile) {
-                    return _buildMobileTimelineItem(
-                      item: item,
-                      index: index,
-                    );
-                  } else {
-                    return _buildDesktopTimelineItem(
-                      item: item,
-                      index: index,
-                      isLeft: index % 2 == 0,
-                    );
-                  }
-                }).toList(),
-              ],
+                  // Timeline Items
+                  Column(
+                    children: _timelineItems.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final item = entry.value;
+                      if (isMobile) {
+                        return _buildMobileTimelineItem(item: item, index: index);
+                      } else {
+                        return _buildDesktopTimelineItem(
+                          item: item,
+                          index: index,
+                          isLeft: index % 2 == 0,
+                        );
+                      }
+                    }).toList(),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLine() {
+    return Container(
+      width: 2,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.primary, AppColors.secondary],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.5),
+            blurRadius: 20,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, double titleSize) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+            borderRadius: BorderRadius.circular(100),
+            color: AppColors.primary.withOpacity(0.05),
+          ),
+          child: Text(
+            'JOURNEY',
+            style: GoogleFonts.orbitron(
+              fontSize: 12,
+              letterSpacing: 4,
+              color: AppColors.primary,
+            ),
+          ),
+        ).animate().fadeIn(duration: 600.ms).moveY(begin: 20, end: 0, duration: 600.ms, curve: Curves.easeOut),
+        
+        const SizedBox(height: 15),
+        
+        ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [Colors.white, AppColors.primary],
+          ).createShader(bounds),
+          child: Text(
+            'My Path',
+            style: GoogleFonts.orbitron(
+              fontSize: titleSize,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1,
+              color: Colors.white, // Required for ShaderMask to show the gradient
+            ),
+          ),
+        ).animate().fadeIn(duration: 600.ms, delay: 100.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 100.ms, curve: Curves.easeOut),
+        
+        const SizedBox(height: 15),
+        
+        Text(
+          'Milestones that shaped my craft.',
+          style: TextStyle(
+            color: AppColors.muted,
+            fontSize: 16,
+            height: 1.7,
+          ),
+          textAlign: TextAlign.center,
+        ).animate().fadeIn(duration: 600.ms, delay: 200.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 200.ms, curve: Curves.easeOut),
+      ],
     );
   }
 
@@ -161,30 +182,7 @@ class TimelineSection extends StatelessWidget {
               child: isLeft ? _buildTimelineCard(item) : const SizedBox(),
             ),
           ),
-          Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.bg, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withOpacity(0.5),
-                  blurRadius: 20,
-                ),
-                BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
-                  blurRadius: 40,
-                ),
-              ],
-            ),
-          ).animate().scale(
-            duration: 500.ms,
-            delay: (index * 100).ms,
-            begin: const Offset(0.5, 0.5),
-            end: const Offset(1.0, 1.0),
-          ),
+          _buildDot(index),
           Expanded(
             child: Container(
               padding: const EdgeInsets.only(left: 30),
@@ -193,10 +191,7 @@ class TimelineSection extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fadeUp(
-      duration: 600.ms,
-      delay: (index * 150).ms,
-    );
+    ).animate().fadeIn(duration: 600.ms, delay: (index * 150).ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: (index * 150).ms, curve: Curves.easeOut);
   }
 
   Widget _buildMobileTimelineItem({
@@ -207,34 +202,40 @@ class TimelineSection extends StatelessWidget {
       padding: const EdgeInsets.only(left: 40, bottom: 20),
       child: Row(
         children: [
-          Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.bg, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withOpacity(0.5),
-                  blurRadius: 20,
-                ),
-                BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
-                  blurRadius: 40,
-                ),
-              ],
-            ),
-          ),
+          _buildDot(index),
           const SizedBox(width: 20),
           Expanded(
             child: _buildTimelineCard(item),
           ),
         ],
       ),
-    ).animate().fadeRight(
-      duration: 600.ms,
-      delay: (index * 150).ms,
+    ).animate().fadeIn(duration: 600.ms, delay: (index * 150).ms).moveX(begin: 20, end: 0, duration: 600.ms, delay: (index * 150).ms, curve: Curves.easeOut);
+  }
+
+  Widget _buildDot(int index) {
+    return Container(
+      width: 20,
+      height: 20,
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColors.bg, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.5),
+            blurRadius: 20,
+          ),
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.3),
+            blurRadius: 40,
+          ),
+        ],
+      ),
+    ).animate().scale(
+      duration: 500.ms,
+      delay: (index * 100).ms,
+      begin: const Offset(0.5, 0.5),
+      end: const Offset(1.0, 1.0),
     );
   }
 
@@ -277,13 +278,5 @@ class TimelineSection extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  double _clamp(BuildContext context, double min, double max, double fraction) {
-    final width = MediaQuery.of(context).size.width;
-    final value = width * fraction;
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
   }
 }

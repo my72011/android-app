@@ -13,9 +13,12 @@ class ParticleBackground extends StatefulWidget {
 
 class _ParticleBackgroundState extends State<ParticleBackground>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+  late final AnimationController _controller;
   final List<_Particle> _particles = [];
   final Random _random = Random();
+  
+  // Base paint to avoid creating a new Paint object every frame for better performance
+  final Paint _basePaint = Paint()..style = PaintingStyle.fill;
 
   @override
   void initState() {
@@ -25,15 +28,22 @@ class _ParticleBackgroundState extends State<ParticleBackground>
       duration: const Duration(seconds: 60),
     )..repeat();
 
-    for (int i = 0; i < 3000; i++) {
+    _generateParticles();
+  }
+
+  void _generateParticles() {
+    // Reduced particle count from 3000 to 400 for much better performance on mobile/web
+    // while still keeping a nice starry background effect
+    const int particleCount = 400; 
+    for (int i = 0; i < particleCount; i++) {
       _particles.add(
         _Particle(
           x: _random.nextDouble(),
           y: _random.nextDouble(),
           z: _random.nextDouble(),
           size: 0.002 + _random.nextDouble() * 0.004,
-          speedX: (-0.0005 + _random.nextDouble() * 0.001),
-          speedY: (-0.0005 + _random.nextDouble() * 0.001),
+          speedX: -0.0005 + _random.nextDouble() * 0.001,
+          speedY: -0.0005 + _random.nextDouble() * 0.001,
           color: _random.nextDouble() < 0.5
               ? const Color(0xFF00E5FF)
               : const Color(0xFF8B5CF6),
@@ -62,7 +72,7 @@ class _ParticleBackgroundState extends State<ParticleBackground>
           if (p.y > 1) p.y = 0;
         }
         return CustomPaint(
-          painter: _ParticlePainter(_particles),
+          painter: _ParticlePainter(_particles, _basePaint),
           size: Size.infinite,
         );
       },
@@ -70,11 +80,12 @@ class _ParticleBackgroundState extends State<ParticleBackground>
   }
 }
 
-class _Particle {
+// Used Dart 3 class modifiers for better encapsulation
+final class _Particle {
   double x, y, z;
-  double size;
-  double speedX, speedY;
-  Color color;
+  final double size;
+  final double speedX, speedY;
+  final Color color;
 
   _Particle({
     required this.x,
@@ -87,26 +98,26 @@ class _Particle {
   });
 }
 
-class _ParticlePainter extends CustomPainter {
+final class _ParticlePainter extends CustomPainter {
   final List<_Particle> particles;
+  final Paint basePaint;
 
-  _ParticlePainter(this.particles);
+  _ParticlePainter(this.particles, this.basePaint);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-
     for (var p in particles) {
       final x = p.x * size.width;
       final y = p.y * size.height;
       final radius = p.size * size.width * 1.5;
 
-      paint.color = p.color.withOpacity(0.7 + 0.3 * p.z);
+      // Reusing the basePaint and just updating the color to avoid memory allocations per frame
+      basePaint.color = p.color.withOpacity(0.7 + 0.3 * p.z);
 
       canvas.drawCircle(
         Offset(x, y),
         radius,
-        paint,
+        basePaint,
       );
     }
   }

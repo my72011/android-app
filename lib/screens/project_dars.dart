@@ -12,9 +12,10 @@ class DarsIceCreamScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
-    final titleSize = isMobile ? 50.0 : _clamp(context, 50, 140, 0.1);
-    final subSize = isMobile ? 14.0 : _clamp(context, 14, 20, 0.02);
+    final size = MediaQuery.sizeOf(context);
+    final isMobile = size.width < 768;
+    final titleSize = isMobile ? 50.0 : (size.width * 0.1).clamp(50.0, 140.0);
+    final subSize = isMobile ? 14.0 : (size.width * 0.02).clamp(14.0, 20.0);
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A0A2E),
@@ -38,16 +39,19 @@ class DarsIceCreamScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
+                  // Header
                   Row(
                     children: [
-                      Text(
-                        'Dars 🍦',
-                        style: GoogleFonts.pacifico(
-                          fontSize: 26,
-                          foreground: Paint()
-                            ..shader = const LinearGradient(
-                              colors: [Color(0xFFFF6EC4), Color(0xFF4ADE80)],
-                            ).createShader(const Rect.fromLTWH(0, 0, 200, 30)),
+                      ShaderMask(
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [Color(0xFFFF6EC4), Color(0xFF4ADE80)],
+                        ).createShader(bounds),
+                        child: Text(
+                          'Dars 🍦',
+                          style: GoogleFonts.pacifico(
+                            fontSize: 26,
+                            color: Colors.white, // Required for ShaderMask
+                          ),
                         ),
                       ),
                       const Spacer(),
@@ -81,7 +85,10 @@ class DarsIceCreamScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+                  
                   const SizedBox(height: 60),
+                  
+                  // Hero Section
                   Column(
                     children: [
                       Container(
@@ -99,24 +106,30 @@ class DarsIceCreamScreen extends StatelessWidget {
                             color: Colors.white,
                           ),
                         ),
-                      ).animate().fadeDown(duration: 600.ms),
+                      ).animate().fadeIn(duration: 600.ms).moveY(begin: -20, end: 0, duration: 600.ms, curve: Curves.easeOut),
+                      
                       const SizedBox(height: 20),
-                      Text(
-                        'Dars Ice Cream',
-                        style: GoogleFonts.pacifico(
-                          fontSize: titleSize,
-                          foreground: Paint()
-                            ..shader = const LinearGradient(
-                              colors: [Colors.white, Color(0xFFFEF3C7), Color(0xFFFF6EC4)],
-                            ).createShader(const Rect.fromLTWH(0, 0, 400, 80)),
+                      
+                      ShaderMask(
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [Colors.white, Color(0xFFFEF3C7), Color(0xFFFF6EC4)],
+                        ).createShader(bounds),
+                        child: Text(
+                          'Dars Ice Cream',
+                          style: GoogleFonts.pacifico(
+                            fontSize: titleSize,
+                            color: Colors.white, // Required for ShaderMask
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
                       ).animate().scale(
                         duration: 800.ms,
                         begin: const Offset(0.8, 0.8),
                         end: const Offset(1.0, 1.0),
                       ),
+                      
                       const SizedBox(height: 10),
+                      
                       Text(
                         'A TASTE OF DIGITAL MAGIC',
                         style: GoogleFonts.orbitron(
@@ -124,8 +137,10 @@ class DarsIceCreamScreen extends StatelessWidget {
                           letterSpacing: 6,
                           color: Colors.white.withOpacity(0.85),
                         ),
-                      ).animate().fadeUp(duration: 600.ms, delay: 100.ms),
+                      ).animate().fadeIn(duration: 600.ms, delay: 100.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 100.ms, curve: Curves.easeOut),
+                      
                       const SizedBox(height: 40),
+                      
                       MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
@@ -141,6 +156,7 @@ class DarsIceCreamScreen extends StatelessWidget {
                                 BoxShadow(
                                   color: const Color(0xFFFF6EC4).withOpacity(0.5),
                                   blurRadius: 40,
+                                  offset: const Offset(0, 10),
                                 ),
                               ],
                             ),
@@ -162,10 +178,13 @@ class DarsIceCreamScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ).animate().fadeUp(duration: 600.ms, delay: 200.ms),
+                      ).animate().fadeIn(duration: 600.ms, delay: 200.ms).moveY(begin: 20, end: 0, duration: 600.ms, delay: 200.ms, curve: Curves.easeOut),
                     ],
                   ),
+                  
                   const SizedBox(height: 80),
+                  
+                  // Overview Section
                   _buildSectionHeader(
                     context,
                     tag: 'OVERVIEW',
@@ -220,7 +239,10 @@ class DarsIceCreamScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                  
                   const SizedBox(height: 80),
+                  
+                  // Features Section
                   _buildSectionHeader(
                     context,
                     tag: 'FEATURES',
@@ -265,7 +287,10 @@ class DarsIceCreamScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+                  
                   const SizedBox(height: 80),
+                  
+                  // Tech Stack Section
                   _buildSectionHeader(
                     context,
                     tag: 'STACK',
@@ -288,7 +313,10 @@ class DarsIceCreamScreen extends StatelessWidget {
                       _buildTechPill(icon: FontAwesomeIcons.bolt, label: 'Performance'),
                     ],
                   ),
+                  
                   const SizedBox(height: 80),
+                  
+                  // CTA Section
                   Container(
                     padding: const EdgeInsets.all(70),
                     decoration: BoxDecoration(
@@ -300,6 +328,7 @@ class DarsIceCreamScreen extends StatelessWidget {
                         BoxShadow(
                           color: const Color(0xFFFF6EC4).withOpacity(0.4),
                           blurRadius: 80,
+                          offset: const Offset(0, 20),
                         ),
                       ],
                     ),
@@ -308,7 +337,7 @@ class DarsIceCreamScreen extends StatelessWidget {
                         Text(
                           'Ready for a Taste?',
                           style: GoogleFonts.pacifico(
-                            fontSize: isMobile ? 32 : _clamp(context, 32, 56, 0.05),
+                            fontSize: isMobile ? 32.0 : (size.width * 0.05).clamp(32.0, 56.0),
                             color: Colors.white,
                           ),
                           textAlign: TextAlign.center,
@@ -355,7 +384,10 @@ class DarsIceCreamScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                  
                   const SizedBox(height: 60),
+                  
+                  // Footer
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 40),
                     decoration: BoxDecoration(
@@ -382,7 +414,9 @@ class DarsIceCreamScreen extends StatelessWidget {
   }
 
   Widget _buildSectionHeader(BuildContext context, {required String tag, required String title, required String desc}) {
-    final titleSize = _clamp(context, 36, 72, 0.06);
+    final size = MediaQuery.sizeOf(context);
+    final titleSize = (size.width * 0.06).clamp(36.0, 72.0);
+    
     return Column(
       children: [
         Container(
@@ -410,6 +444,7 @@ class DarsIceCreamScreen extends StatelessWidget {
             title,
             style: GoogleFonts.pacifico(
               fontSize: titleSize,
+              color: Colors.white, // Required for ShaderMask
             ),
             textAlign: TextAlign.center,
           ),
@@ -447,7 +482,7 @@ class DarsIceCreamScreen extends StatelessWidget {
             shaderCallback: (bounds) => const LinearGradient(
               colors: [Color(0xFFFF6EC4), Color(0xFF4ADE80)],
             ).createShader(bounds),
-            child: FaIcon(icon, size: 48),
+            child: FaIcon(icon, size: 48, color: Colors.white), // Required for ShaderMask
           ),
           const SizedBox(height: 15),
           Text(
@@ -503,15 +538,7 @@ class DarsIceCreamScreen extends StatelessWidget {
     );
   }
 
-  double _clamp(BuildContext context, double min, double max, double fraction) {
-    final width = MediaQuery.of(context).size.width;
-    final value = width * fraction;
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
-  }
-
-  void _launchUrl(String url) async {
+  Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
