@@ -130,7 +130,7 @@ class SkillsSection extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
+              shaderCallback: (bounds) => LinearGradient(
                 colors: [AppColors.primary, AppColors.secondary],
               ).createShader(bounds),
               child: FaIcon(

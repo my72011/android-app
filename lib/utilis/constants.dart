@@ -10,8 +10,8 @@ final class AppColors {
   static const Color secondary = Color(0xFF8B5CF6);
   static const Color text = Color(0xFFF8FAFC);
   static const Color muted = Color(0xFF94A3B8);
-  static const Color glass = Color(0x0AFFFFFF); // rgba(255,255,255,0.04)
-  static const Color glassBorder = Color(0x14FFFFFF); // rgba(255,255,255,0.08)
+  static const Color glass = Color(0x0AFFFFFF);
+  static const Color glassBorder = Color(0x14FFFFFF);
 }
 
 final class AppFonts {

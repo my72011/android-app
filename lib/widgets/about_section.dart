@@ -127,7 +127,7 @@ class _AboutSectionState extends State<AboutSection> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
+                  shaderCallback: (bounds) =>  LinearGradient(
                     colors: [AppColors.primary, AppColors.secondary],
                   ).createShader(bounds),
                   child: Text(
@@ -200,7 +200,7 @@ class _AboutSectionState extends State<AboutSection> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
+                shaderCallback: (bounds) =>  LinearGradient(
                   colors: [AppColors.primary, AppColors.secondary],
                 ).createShader(bounds),
                 child: Text(
@@ -325,11 +325,10 @@ class _AboutSectionState extends State<AboutSection> {
     _timers.add(timer);
   }
 
-  Widget _buildOrbitVisual() {
+    Widget _buildOrbitVisual() {
     return Stack(
       alignment: Alignment.center,
       children: [
-        // Outer solid circle
         Container(
           width: 300,
           height: 300,
@@ -341,52 +340,53 @@ class _AboutSectionState extends State<AboutSection> {
             ),
           ),
         ),
-        // Middle dashed circle (Fixed: Flutter doesn't support BorderStyle.dashed natively, using CustomPaint)
         CustomPaint(
           size: const Size(210, 210),
           painter: _DashedCirclePainter(color: AppColors.secondary.withOpacity(0.2)),
         ),
-        // Inner dashed circle
         CustomPaint(
           size: const Size(120, 120),
           painter: _DashedCirclePainter(color: AppColors.primary.withOpacity(0.3)),
         ),
-        // Center glowing core
-        Container(
-          width: 80,
-          height: 80,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [AppColors.primary, AppColors.secondary],
-              stops: [0.3, 1.0],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary,
-                blurRadius: 60,
-              ),
-              BoxShadow(
-                color: AppColors.secondary,
-                blurRadius: 120,
-              ),
-            ],
-          ),
-        ).animate().scale(
-          duration: 3.seconds,
-          begin: const Offset(0.9, 0.9),
-          end: const Offset(1.1, 1.1),
-          curve: Curves.easeInOut,
-        ).then().scale(
-          duration: 3.seconds,
-          begin: const Offset(1.1, 1.1),
-          end: const Offset(0.9, 0.9),
-          curve: Curves.easeInOut,
-        ).repeat(reverse: true),
+        // Center glowing core with AnimationController
+        _buildPulsingCore(),
       ],
     );
   }
-}
+
+  Widget _buildPulsingCore() {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.9, end: 1.1),
+      duration: const Duration(seconds: 3),
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: child,
+        );
+      },
+      child: Container(
+        width: 80,
+        height: 80,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [AppColors.primary, AppColors.secondary],
+            stops: [0.3, 1.0],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary,
+              blurRadius: 60,
+            ),
+            BoxShadow(
+              color: AppColors.secondary,
+              blurRadius: 120,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
 // Custom Painter to create dashed circles since Flutter's BorderSide doesn't support dashed lines natively
 final class _DashedCirclePainter extends CustomPainter {

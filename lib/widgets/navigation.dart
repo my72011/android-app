@@ -71,7 +71,7 @@ class _NavigationBarWidgetState extends State<NavigationBarWidget> {
             Row(
               children: [
                 ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
+                  shaderCallback: (bounds) =>  LinearGradient(
                     colors: [AppColors.primary, AppColors.secondary],
                   ).createShader(bounds),
                   child: Text(

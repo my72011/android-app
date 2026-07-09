@@ -81,7 +81,7 @@ class ContactSection extends StatelessWidget {
               const SizedBox(height: 15),
               
               ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
+                shaderCallback: (bounds) => LinearGradient(
                   colors: [Colors.white, AppColors.primary, AppColors.secondary],
                 ).createShader(bounds),
                 child: Text(

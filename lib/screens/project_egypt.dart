@@ -271,7 +271,7 @@ class EgyptExplorerScreen extends StatelessWidget {
                         desc: 'Immerse in the traditions, art and spirit of Egyptian civilization.',
                       ),
                       _buildFeatureCard(
-                        icon: FontAwesomeIcons.hierarchy,
+                        icon: FontAwesomeIcons.layerGroup,
                         title: 'Hieroglyphics',
                         desc: 'Decode the sacred writings that shaped human history.',
                       ),

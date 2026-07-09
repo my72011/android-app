@@ -192,7 +192,7 @@ class HeroSection extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 38, vertical: 16),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient:  LinearGradient(
               colors: [AppColors.primary, AppColors.secondary],
             ),
             borderRadius: BorderRadius.circular(50),

@@ -24,7 +24,7 @@ class LoaderWidget extends StatelessWidget {
         children: [
           // Logo
           ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
+            shaderCallback: (bounds) => LinearGradient(
               colors: [AppColors.primary, AppColors.secondary],
             ).createShader(bounds),
             child: Text(
@@ -53,7 +53,7 @@ class LoaderWidget extends StatelessWidget {
               widthFactor: progress / 100,
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient:  LinearGradient(
                     colors: [AppColors.primary, AppColors.secondary],
                   ),
                   borderRadius: BorderRadius.circular(10),

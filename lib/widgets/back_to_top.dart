@@ -28,7 +28,7 @@ class BackToTopButton extends StatelessWidget {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient:  LinearGradient(
                 colors: [AppColors.primary, AppColors.secondary],
               ),
               shape: BoxShape.circle,

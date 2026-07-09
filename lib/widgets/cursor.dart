@@ -13,7 +13,7 @@ class CustomCursor extends StatefulWidget {
 
 class _CustomCursorState extends State<CustomCursor> {
   Offset _position = Offset.zero;
-  bool _isHovering = false; // Can be toggled later when hovering over interactive elements
+  bool _isHovering = false;
 
   bool _isDesktop(BuildContext context) {
     return MediaQuery.sizeOf(context).width > 768;
@@ -23,9 +23,7 @@ class _CustomCursorState extends State<CustomCursor> {
   Widget build(BuildContext context) {
     if (!_isDesktop(context)) return const SizedBox.shrink();
 
-    // Positioned.fill ensures the MouseRegion covers the entire screen 
-    // so it can track mouse movement everywhere without dead zones.
-    return Positioned.fill(
+    return SizedBox.expand(
       child: MouseRegion(
         cursor: SystemMouseCursors.none,
         onHover: (event) {
@@ -35,7 +33,7 @@ class _CustomCursorState extends State<CustomCursor> {
         },
         child: Stack(
           children: [
-            // Glow (Background layer)
+            // Glow
             Positioned(
               left: _position.dx - 200,
               top: _position.dy - 200,
@@ -50,12 +48,11 @@ class _CustomCursorState extends State<CustomCursor> {
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.7],
-                  ],
+                  ),
                 ),
               ),
             ),
-            
-            // Ring (Middle layer)
+            // Ring
             Positioned(
               left: _position.dx - 20,
               top: _position.dy - 20,
@@ -76,8 +73,7 @@ class _CustomCursorState extends State<CustomCursor> {
                 ),
               ),
             ),
-            
-            // Dot (Top layer)
+            // Dot
             Positioned(
               left: _position.dx - 4,
               top: _position.dy - 4,

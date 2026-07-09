@@ -102,14 +102,14 @@ class TimelineSection extends StatelessWidget {
     return Container(
       width: 2,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient:  LinearGradient(
           colors: [AppColors.primary, AppColors.secondary],
         ),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withOpacity(0.5),
             blurRadius: 20,
-          ),
+          ),t
         ],
       ),
     );
