@@ -109,7 +109,7 @@ class TimelineSection extends StatelessWidget {
           BoxShadow(
             color: AppColors.primary.withOpacity(0.5),
             blurRadius: 20,
-          ),t
+          ),
         ],
       ),
     );

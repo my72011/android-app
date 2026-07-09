@@ -387,7 +387,7 @@ class _AboutSectionState extends State<AboutSection> {
       ),
     );
   }
-
+}
 // Custom Painter to create dashed circles since Flutter's BorderSide doesn't support dashed lines natively
 final class _DashedCirclePainter extends CustomPainter {
   final Color color;
