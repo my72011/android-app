@@ -45,7 +45,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final userState = ref.read(userProvider);
       final exercises = await ref.read(exerciseRepositoryProvider).getAllExercises();
       
-      await PdfGenerator.generateAndPrint(
+      await PdfGenerator.generateAndShare(
         user: userState.user!,
         plan: userState.currentPlan!,
         exerciseLibrary: exercises,
