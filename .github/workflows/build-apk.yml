@@ -22,18 +22,17 @@ jobs:
           channel: 'stable'
           cache: true
       
-      - name: Fix Gradle Memory Limits for Gradle 9.1.0
+      - name: Fix Gradle Memory Limits
         run: |
-          # التأكد من استخدام Gradle 9.1.0 كما يتطلب المشروع
+          # Ensure Gradle 9.1.0 is used as required by the project
           sed -i 's/gradle-.*-all.zip/gradle-9.1.0-all.zip/' android/gradle/wrapper/gradle-wrapper.properties
           sed -i 's/gradle-.*-bin.zip/gradle-9.1.0-bin.zip/' android/gradle/wrapper/gradle-wrapper.properties
           
-          # إيقاف الـ Daemon تماماً وتحديد مساحة ذاكرة Metaspace بـ 1GB لمنع الانهيار
+          # Set safe memory limits for the 7GB GitHub Actions runner to prevent OOM Metaspace
           cat << 'PROPS' > android/gradle.properties
           org.gradle.daemon=false
-          org.gradle.jvmargs=-Xmx4G -XX:MaxMetaspaceSize=1G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.jvmargs=-Xmx2G -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
           org.gradle.parallel=true
-          org.gradle.caching=true
           android.useAndroidX=true
           android.enableJetifier=true
           PROPS
@@ -45,8 +44,8 @@ jobs:
         run: flutter pub run build_runner build --delete-conflicting-outputs
       
       - name: Build APK
-        # إضافة --no-daemon كإجراء احتياطي إضافي لضمان عدم تشغيل أي عمليات خلفية
-        run: flutter build apk --release --no-daemon
+        # Removed --no-daemon. The daemon is already disabled via gradle.properties.
+        run: flutter build apk --release
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
