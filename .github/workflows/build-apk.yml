@@ -22,12 +22,26 @@ jobs:
           channel: 'stable'
           cache: true
       
+      - name: Fix Gradle Version and Memory Limits
+        run: |
+          # إجبار المشروع على استخدام Gradle 8.4 المستقرة بدلاً من 9.1.0
+          sed -i 's/gradle-.*-all.zip/gradle-8.4-all.zip/' android/gradle/wrapper/gradle-wrapper.properties
+          sed -i 's/gradle-.*-bin.zip/gradle-8.4-bin.zip/' android/gradle/wrapper/gradle-wrapper.properties
+          
+          # إعادة كتابة gradle.properties لإيقاف الـ Daemon وتحديد الذاكرة
+          cat << 'PROPS' > android/gradle.properties
+          org.gradle.daemon=false
+          org.gradle.jvmargs=-Xmx2G -XX:MaxMetaspaceSize=512m
+          org.gradle.parallel=true
+          android.useAndroidX=true
+          android.enableJetifier=true
+          PROPS
+
       - name: Install dependencies
         run: flutter pub get
       
       - name: Generate Hive adapters
         run: flutter pub run build_runner build --delete-conflicting-outputs
-        continue-on-error: false
       
       - name: Build APK
         run: flutter build apk --release
