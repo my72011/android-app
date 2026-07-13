@@ -22,17 +22,18 @@ jobs:
           channel: 'stable'
           cache: true
       
-      - name: Fix Gradle Version and Memory Limits
+      - name: Fix Gradle Memory Limits for Gradle 9.1.0
         run: |
-          # إجبار المشروع على استخدام Gradle 8.4 المستقرة بدلاً من 9.1.0
-          sed -i 's/gradle-.*-all.zip/gradle-8.4-all.zip/' android/gradle/wrapper/gradle-wrapper.properties
-          sed -i 's/gradle-.*-bin.zip/gradle-8.4-bin.zip/' android/gradle/wrapper/gradle-wrapper.properties
+          # التأكد من استخدام Gradle 9.1.0 كما يتطلب المشروع
+          sed -i 's/gradle-.*-all.zip/gradle-9.1.0-all.zip/' android/gradle/wrapper/gradle-wrapper.properties
+          sed -i 's/gradle-.*-bin.zip/gradle-9.1.0-bin.zip/' android/gradle/wrapper/gradle-wrapper.properties
           
-          # إعادة كتابة gradle.properties لإيقاف الـ Daemon وتحديد الذاكرة
+          # إيقاف الـ Daemon تماماً وتحديد مساحة ذاكرة Metaspace بـ 1GB لمنع الانهيار
           cat << 'PROPS' > android/gradle.properties
           org.gradle.daemon=false
-          org.gradle.jvmargs=-Xmx2G -XX:MaxMetaspaceSize=512m
+          org.gradle.jvmargs=-Xmx4G -XX:MaxMetaspaceSize=1G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.parallel=true
+          org.gradle.caching=true
           android.useAndroidX=true
           android.enableJetifier=true
           PROPS
@@ -44,7 +45,8 @@ jobs:
         run: flutter pub run build_runner build --delete-conflicting-outputs
       
       - name: Build APK
-        run: flutter build apk --release
+        # إضافة --no-daemon كإجراء احتياطي إضافي لضمان عدم تشغيل أي عمليات خلفية
+        run: flutter build apk --release --no-daemon
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
