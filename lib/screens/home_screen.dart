@@ -1,125 +1,145 @@
-// ============================================================
-// lib/screens/home_screen.dart
-// ============================================================
 import 'package:flutter/material.dart';
-import '../widgets/loader.dart';
-import '../widgets/cursor.dart';
-import '../widgets/navigation.dart';
-import '../widgets/hero_section.dart';
-import '../widgets/about_section.dart';
-import '../widgets/skills_section.dart';
-import '../widgets/projects_section.dart';
-import '../widgets/timeline_section.dart';
-import '../widgets/contact_section.dart';
-import '../widgets/footer.dart';
-import '../widgets/back_to_top.dart';
-import '../utils/constants.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../nutrition_engine/nutrition_calculator.dart';
+import '../providers/user_provider.dart';
+import '../providers/repository_providers.dart';
+import 'exercise_detail_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userState = ref.watch(userProvider);
+    final exercisesAsync = ref.watch(allExercisesProvider);
+    final theme = Theme.of(context);
 
-class _HomeScreenState extends State<HomeScreen> {
-  final ScrollController _scrollController = ScrollController();
-  bool _showLoader = true;
-  double _loaderProgress = 0.0;
-  bool _showBackToTop = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _simulateLoader();
-    _scrollController.addListener(_onScroll);
-  }
-
-  Future<void> _simulateLoader() async {
-    double progress = 0.0;
-    while (progress < 100) {
-      await Future.delayed(const Duration(milliseconds: 120));
-      progress += (5 + (10 * (1 - progress / 100)));
-      if (progress > 100) progress = 100;
-      
-      if (mounted) {
-        setState(() {
-          _loaderProgress = progress;
-        });
-      }
+    if (userState.isLoading || userState.user == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+
+    final user = userState.user!;
+    final plan = userState.currentPlan;
+    final nutrition = NutritionCalculator.calculate(user);
     
-    await Future.delayed(const Duration(milliseconds: 400));
-    if (mounted) {
-      setState(() {
-        _showLoader = false;
-      });
-    }
-  }
+    final todayName = DateTime.now().weekday == 7 
+        ? 'Sunday' 
+        : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][DateTime.now().weekday - 1];
+        
+    final todayWorkout = plan?.weekSchedule.firstWhere(
+      (d) => d.dayName == todayName, 
+      orElse: () => plan!.weekSchedule.first,
+    );
 
-  void _onScroll() {
-    final show = _scrollController.offset > 500;
-    if (show != _showBackToTop && mounted) {
-      setState(() {
-        _showBackToTop = show;
-      });
-    }
-  }
+    return Scaffold(
+      appBar: AppBar(title: const Text('Dashboard')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Hello, ${user.name}!', style: theme.textTheme.headlineSmall),
+            const SizedBox(height: 24),
+            
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Daily Nutrition', style: theme.textTheme.titleLarge),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _StatChip(label: 'Calories', value: '${nutrition.targetCalories}', unit: 'kcal', color: theme.colorScheme.primary),
+                        _StatChip(label: 'Protein', value: '${nutrition.proteinGrams}', unit: 'g', color: Colors.red),
+                        _StatChip(label: 'Carbs', value: '${nutrition.carbsGrams}', unit: 'g', color: Colors.orange),
+                        _StatChip(label: 'Fat', value: '${nutrition.fatGrams}', unit: 'g', color: Colors.blue),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
 
-  void _scrollToTop() {
-    _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 800),
-      curve: Curves.easeOutCubic,
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Today: ${todayWorkout?.dayName}', style: theme.textTheme.titleLarge),
+                        Chip(label: Text(todayWorkout?.focus ?? 'Rest')),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    if (todayWorkout == null || todayWorkout.isRestDay)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Text('Rest Day! Recover and stretch.', style: TextStyle(fontSize: 18)),
+                        ),
+                      )
+                    else
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: todayWorkout.exercises.length,
+                        itemBuilder: (context, index) {
+                          final set = todayWorkout.exercises[index];
+                          final ex = exercisesAsync.value?.firstWhere((e) => e.id == set.exerciseId);
+                          
+                          return ListTile(
+                            leading: const CircleAvatar(child: Icon(Icons.fitness_center)),
+                            title: Text(ex?.name ?? 'Exercise'),
+                            subtitle: Text('${set.sets} sets x ${set.reps} reps | Rest: ${set.restSeconds}s'),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () {
+                              if (ex != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => ExerciseDetailScreen(exercise: ex)),
+                                );
+                              }
+                            },
+                          );
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
+}
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+class _StatChip extends StatelessWidget {
+  final String label, value, unit;
+  final Color color;
+
+  const _StatChip({
+    required this.label,
+    required this.value,
+    required this.unit,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: Stack(
-        children: [
-          // Main content with scroll
-          SingleChildScrollView(
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(),
-            child: const Column(
-              children: [
-                HeroSection(),
-                AboutSection(),
-                SkillsSection(),
-                ProjectsSection(),
-                TimelineSection(),
-                ContactSection(),
-                FooterSection(),
-              ],
-            ),
-          ),
-
-          // Fixed elements
-          const NavigationBarWidget(),
-          if (_showBackToTop)
-            BackToTopButton(
-              onTap: _scrollToTop,
-            ),
-
-          // Custom cursor (desktop only)
-          const CustomCursor(),
-
-          // Loader overlay
-          if (_showLoader)
-            LoaderWidget(
-              progress: _loaderProgress,
-            ),
-        ],
-      ),
+    return Column(
+      children: [
+        Text(value, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: color, fontWeight: FontWeight.bold)),
+        Text(unit, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color)),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
+      ],
     );
   }
 }

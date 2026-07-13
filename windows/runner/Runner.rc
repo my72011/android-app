@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "mostafa_portfolio" "\0"
+            VALUE "FileDescription", "gymcoach_pro" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "mostafa_portfolio" "\0"
+            VALUE "InternalName", "gymcoach_pro" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "mostafa_portfolio.exe" "\0"
-            VALUE "ProductName", "mostafa_portfolio" "\0"
+            VALUE "OriginalFilename", "gymcoach_pro.exe" "\0"
+            VALUE "ProductName", "gymcoach_pro" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
